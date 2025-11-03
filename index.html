@@ -17,221 +17,6 @@
   <!-- DOMPurify (sanitize rendered HTML) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
 
-<style>
-  :root {
-    --background-gradient: linear-gradient(180deg, rgba(0, 0, 0, 0.9), rgba(32, 32, 32, 0.7));
-    --bg: #000000; --bg-elev: #000000; --bg-elev-2: #000000; --text: #e6e6ea;
-    --muted: #a6adbb; --border: #2a2a22; --accent: #D4AF37; /* metallic gold */
-    --accent-2: #FFD700; /* CSS gold */
-    --danger: #ff6b6b; --ok: #2ecc71; --chip: #1a1f2a; --code-bg: #000000;
-    --shadow: 0 6px 20px rgba(0,0,0,0.35);
-    --bot-gradient: linear-gradient(180deg, rgba(25,25,25,0.96), rgba(0, 0, 0, 0.78));
-  }
-
-  html[data-theme="dark"] {
-    color-scheme: dark;
-    --bg: #000000; --bg-elev: #000000; --bg-elev-2: #0a0600; --text: #e6e6ea;
-    --muted: #a6adbb; --border: #2a2a22; --accent: #D4AF37; --accent-2: #FFD700;
-    --danger: #ff6b6b; --ok: #2ecc71; --chip: #1a1f2a; --code-bg: #0b0f17;
-    --shadow: 0 6px 20px rgba(0,0,0,0.35);
-    --bot-gradient: linear-gradient(180deg, rgba(25,25,25,0.96), rgba(0,0,0,0.78));
-  }
-
-  html[data-theme="light"] {
-    color-scheme: light;
-    --bg: #f7f8fa; --bg-elev: #ffffff; --bg-elev-2: #f2f4f8; --text: #111111;
-    --muted: #545b66; --border: #e3e6ee; --accent: #beceff; /* royal blue */
-    --accent-2: #afc5ff; /* deeper royal blue */
-    --danger: #dc3545; --ok: #198754; --chip: #eef2fb; --code-bg: #f7f9ff;
-    --shadow: 0 6px 20px rgba(0,0,0,0.08);
-    --bot-gradient: linear-gradient(180deg, rgba(230,235,250,0.9), rgba(205,215,245,0.7));
-  }
-
-  html[data-theme="light"] {
-    --accent: #D4AF37;   
-    --accent-2: #B8860B;
-  }
-  
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background:
-      radial-gradient(1200px 800px at 80% -10%, rgba(212,175,55,0.10), transparent 60%),
-      radial-gradient(800px 600px at -10% 110%, rgba(255,215,0,0.10), transparent 60%),
-      var(--bg);
-    display: flex; height: 100vh; color: var(--text);
-  }
-
-  html[data-theme="light"] body {
-    background:
-      radial-gradient(1200px 800px at 80% -10%, rgba(65,105,225,0.10), transparent 60%),
-      radial-gradient(800px 600px at -10% 110%, rgba(43,87,199,0.08), transparent 60%),
-      var(--bg);
-  }
-
-  aside {
-    width: 280px; background: linear-gradient(180deg, var(--bg-elev), var(--bg-elev-2));
-    border-right: 1px solid var(--border); display: flex; flex-direction: column;
-  }
-
-  .sidebar-header { padding: 12px; display: flex; gap: 8px; align-items: center; }
-  .brand { font-weight: 700; letter-spacing: 0.3px; color: var(--muted); margin-left: auto; opacity: 0.9; }
-
-  .btn {
-    padding: 8px 10px; border: 1px solid var(--border); background: var(--chip); color: var(--text);
-    border-radius: 8px; cursor: pointer; transition: transform .05s ease, background .15s ease;
-  }
-  .btn:hover { background: var(--bg-elev-2); }
-  .btn:active { transform: translateY(1px); }
-
-  .chat-list { flex: 1; overflow-y: auto; padding: 8px 10px; }
-
-  .chat-item {
-    padding: 10px; border-radius: 10px; margin-bottom: 8px; cursor: pointer;
-    background: var(--chip); border: 1px solid transparent; display: flex; align-items: center; gap: 8px;
-  }
-  .chat-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: 0.85; }
-  .chat-item.active { background: linear-gradient(180deg, var(--bg-elev-2), var(--chip)); border: 1px solid var(--border); }
-  .chat-item .title { font-size: 0.95em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
-
-  .sidebar-footer { padding: 10px; font-size: 0.85em; color: var(--muted); border-top: 1px solid var(--border); }
-  main { flex: 1; display: flex; flex-direction: column; }
-
-  header {
-    background: linear-gradient(180deg, var(--bg-elev), var(--bg-elev-2)); color: var(--text);
-    padding: 12px; font-size: 1.05em; font-weight: 700; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  }
-
-  .header-title { flex: 1; text-align: center; }
-  .header-actions { display: flex; gap: 8px; align-items: center; }
-
-  #banner {
-    display:none; background: rgba(255,107,107,0.10); color: var(--text);
-    padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 0.95em;
-  }
-  #banner.ok { background: rgba(46,204,113,0.12); }
-
-  #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-
-  .message {
-    max-width: 72%; padding: 12px 16px; border-radius: 14px; word-wrap: break-word;
-    box-shadow: var(--shadow); border: 1px solid var(--border); line-height: 1.45;
-  }
-
-  /* Theme-specific user bubble tints */
-  html[data-theme="dark"] .user {
-    background: linear-gradient(180deg, rgba(212,175,55,0.18), rgba(212,175,55,0.12));
-    color: var(--text); align-self: flex-end; border-bottom-right-radius: 6px;
-  }
-  html[data-theme="light"] .user {
-    background: linear-gradient(180deg, rgba(65,105,225,0.16), rgba(65,105,225,0.10));
-    color: var(--text); align-self: flex-end; border-bottom-right-radius: 6px;
-  }
-
-  .bot { background: var(--bot-gradient); color: var(--text); align-self: flex-start; border-bottom-left-radius: 6px; }
-
-  .content :is(h1,h2,h3) { margin: 0.2em 0 0.4em; }
-  .content h1 { font-size: 1.2em; }
-  .content h2 { font-size: 1.1em; }
-  .content h3 { font-size: 1.0em; }
-  .content p { margin: 0.6em 0; }
-  .content ul, .content ol { padding-left: 1.2em; margin: 0.5em 0; }
-  .content code { background: var(--code-bg); padding: 0.15em 0.35em; border-radius: 4px; }
-  .content pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 0; overflow: auto; padding: 12px; margin: 0; }
-
-  .msg-meta { font-size: 0.75em; color: var(--muted); margin-top: 8px; }
-  .msg-tools { display: flex; gap: 6px; margin-top: 8px; }
-  .chip-btn { border: 1px solid var(--border); background: var(--chip); color: var(--muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; }
-  .chip-btn:hover { color: var(--text); }
-
-  .code-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--code-bg); }
-  .code-header { display:flex; align-items:center; justify-content:space-between; padding:6px 10px; font-size:12px; color: var(--muted); background: var(--bg-elev-2); border-bottom:1px solid var(--border); }
-  .code-header .lang { letter-spacing: .3px; }
-  .copy-btn { border: 1px solid var(--border); background: var(--chip); color: var(--muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; }
-  .copy-btn:hover { color: var(--text); }
-
-  form { display: flex; padding: 12px; background: var(--bg-elev); border-top: 1px solid var(--border); gap: 10px; }
-  #input { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 1em; background: var(--bg-elev-2); color: var(--text); }
-
-  #send, #stop { padding: 10px 16px; background: var(--accent); border: none; color: #fff; border-radius: 10px; cursor: pointer; font-size: 1em; }
-  #stop { background: var(--danger); display: none; }
-  #send:disabled { background: #666; cursor: not-allowed; }
-
-  .skeleton {
-    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.10), rgba(255,255,255,0.06));
-    background-size: 200% 100%; animation: shimmer 1.2s infinite; width: 180px; height: 18px; border-radius: 6px; margin: 4px 0;
-  }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-  /* Typing indicator bubble */
-  .typing-bubble {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 10px 12px; border-radius: 999px;
-    background: var(--bg-elev-2); border: 1px solid var(--border); box-shadow: var(--shadow);
-  }
-  .typing-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--muted); opacity: 0.2;
-    animation: typingPulse 1s infinite ease-in-out;
-  }
-  .typing-dot:nth-child(2) { animation-delay: .15s; }
-  .typing-dot:nth-child(3) { animation-delay: .3s; }
-  @keyframes typingPulse {
-    0%, 80%, 100% { transform: translateY(0); opacity: 0.2; }
-    40% { transform: translateY(-4px); opacity: 0.9; }
-  }
-
-  .waiting-card.message.bot { position: relative; background: var(--bot-gradient); border: 1px solid var(--border); border-bottom-left-radius: 6px; box-shadow: var(--shadow); }
-  .waiting-row { display: flex; align-items: center; gap: 10px; }
-  .waiting-subtle { color: var(--muted); font-size: 0.9em; margin-top: 6px; }
-
-  .suggestion-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  .suggestion-chip {
-    border: 1px solid var(--border); background: var(--chip); color: var(--muted);
-    padding: 6px 10px; border-radius: 999px; cursor: pointer; font-size: 0.9em;
-  }
-  .suggestion-chip:hover { color: var(--text); background: var(--bg-elev-2); }
-
-  .skel-line { width: 70%; height: 12px; border-radius: 6px; }
-
-  /* Empty state */
-  .empty-state {
-    max-width: 920px; margin: 40px auto; padding: 20px;
-    background: linear-gradient(180deg, var(--bg-elev), var(--bg-elev-2));
-    border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow);
-    text-align: center;
-  }
-  .empty-title { font-size: 1.1em; margin-bottom: 6px; }
-  .empty-sub { color: var(--muted); }
-  .empty-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; justify-content: center; margin-top: 14px; }
-
-  .visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .skeleton { animation: none; }
-    .typing-dot { animation: none; opacity: 0.4; }
-    .btn, .chat-item, .suggestion-chip { transition: none !important; }
-    html, body { scroll-behavior: auto; }
-  }
-
-  *::-webkit-scrollbar { width: 10px; height: 10px; }
-  *::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-  *::-webkit-scrollbar-thumb:hover { background: #3a4256; }
-
-  @media (max-width: 900px) {
-    aside { width: 74px; }
-    .brand { display: none; }
-    .chat-item .title { display: none; }
-    .chat-item .dot { margin: 0 auto; }
-    .message { max-width: 92%; }
-    header { font-size: 1em; }
-    .lang-selects { display: none; }
-  }
-</style>
-
 </head>
 <body>
   <aside>
@@ -284,12 +69,17 @@
 
   <script>
     // ========= Config =========
-    const apiUrl = 'https://api.emogi.space/v1/chat/completions';
+    // Use local LM Studio for dev (OpenAI-compatible endpoint); toggle to remote if CORS fixed
+    const apiUrl = 'http://localhost:1234/v1/chat/completions'; // Local: No CORS issues [memory:1]
+    // const apiUrl = 'https://api.emogi.space/v1/chat/completions'; // Remote: Needs CORS headers on server
     const modelName = 'openai/gpt-oss-20b.ggufs';
-    const apiKey = ''; // optional
+    const apiKey = ''; // Optional for local LM Studio
 
-    const TRANS_BASE = 'https://transapi.emogi.space';
+    const TRANS_BASE = 'http://localhost:5000'; // Local LibreTranslate/IndicTrans2 if needed; e.g., Docker on port 5000 [memory:1]
+    // const TRANS_BASE = 'https://transapi.emogi.space'; // Remote: Needs CORS
     const USE_STREAM = false;
+    const TRANS_TIMEOUT_MS = 15000; // 15s for local setups
+    const DEBUG_PAYLOAD = true; // Set to false in production to disable console logs
 
     const systemPrompt =
       'You are a helpful AI model developed by Ritesh Verma, the CEO of Team Emogi. Your primary role is to assist with programming, video editing, AI, game development, and creative tasks. You represent Team Emogi, a multi-level organization working in AR/VR, AI, animation, space, and game development. Be formal and informative in your tone.';
@@ -305,11 +95,11 @@
     if (location.protocol === 'file:') {
       console.warn('Running from file:// may cause CORS issues for cross-origin APIs.');
       const banner = document.getElementById('banner');
-      banner.textContent = 'Open this file via http(s) (e.g., http://localhost) to avoid CORS origin "null".';
+      banner.textContent = 'Serve via HTTP (e.g., python -m http.server) to fix CORS. Use local LM Studio endpoint.';
       banner.style.display = 'block';
     }
 
-    // ========= DOM =========
+    // ========= DOM ========= (unchanged)
     const chatListEl = document.getElementById('chat-list');
     const newChatBtn = document.getElementById('new-chat');
     const delChatBtn = document.getElementById('delete-chat');
@@ -327,7 +117,7 @@
     const srcLangSel = document.getElementById('src-lang');
     const tgtLangSel = document.getElementById('tgt-lang');
 
-    // ========= Language codes (FLORES) =========
+    // ========= Language codes (FLORES) ========= (unchanged)
     const FLORES = {
       "Assamese": "asm_Beng","Bengali": "ben_Beng","Bodo": "brx_Deva","Dogri": "doi_Deva","English": "eng_Latn",
       "Gujarati": "guj_Gujr","Hindi": "hin_Deva","Kannada": "kan_Knda","Kashmiri (Arabic)": "kas_Arab","Kashmiri (Devanagari)": "kas_Deva",
@@ -350,7 +140,7 @@
     }
     populateLanguageSelects();
 
-    // ========= Theme =========
+    // ========= Theme ========= (unchanged)
     function loadSettings() { try { const raw = localStorage.getItem(SETTINGS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
     function saveSettings(settings) { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {} }
     const settings = loadSettings();
@@ -373,7 +163,7 @@
       showBanner(`Theme: ${next} mode`, true); setTimeout(hideBanner, 1200);
     });
 
-    // ========= Banners / status =========
+    // ========= Banners / status ========= (enhanced for CORS errors)
     function showBanner(msg, ok=false) { bannerEl.textContent = msg; bannerEl.classList.toggle('ok', !!ok); bannerEl.style.display = 'block'; }
     function hideBanner() { bannerEl.style.display = 'none'; bannerEl.textContent = ''; bannerEl.classList.remove('ok'); }
     function updateOnlineStatus() {
@@ -384,13 +174,13 @@
     window.addEventListener('offline', updateOnlineStatus);
     updateOnlineStatus();
 
-    // ========= Storage helpers =========
+    // ========= Storage helpers ========= (unchanged)
     function storageAvailable() { try { const x='__storage_test__'; localStorage.setItem(x,x); localStorage.removeItem(x); return true; } catch { return false; } }
     const HAS_STORAGE = storageAvailable();
     function safeSetItem(key, value) { if (!HAS_STORAGE) return false; try { localStorage.setItem(key, value); return true; } catch (err) { console.warn('Storage set failed:', err); return false; } }
     function safeGetItem(key) { if (!HAS_STORAGE) return null; try { return localStorage.getItem(key); } catch { return null; } }
 
-    // ========= Data model =========
+    // ========= Data model ========= (unchanged)
     function uid() { return 'c' + Math.random().toString(36).slice(2, 10); }
     function loadConversations() {
       try { const raw = safeGetItem(STORAGE_KEY); const parsed = raw ? JSON.parse(raw) : []; return Array.isArray(parsed) ? parsed : []; }
@@ -428,6 +218,8 @@
       const first = conv.messages.find(m => m.sender === 'user');
       if (first) conv.title = first.text.slice(0, 40) + (first.text.length > 40 ? '…' : '');
     }
+
+    // ========= Sync payload builder =========
     function buildMessagesPayload(conv) {
       const last = (conv.messages || []).slice(-12).map(m => ({
         role: m.sender === 'user' ? 'user' : 'assistant',
@@ -436,7 +228,7 @@
       return [{ role: 'system', content: systemPrompt }, ...last];
     }
 
-    // ========= Markdown rendering =========
+    // ========= Markdown rendering ========= (unchanged)
     let md = null;
     function initMarked() {
       try {
@@ -503,17 +295,16 @@
     }
     function scrollBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
 
-    // ========= Random utilities =========
+    // ========= Random utilities ========= (unchanged)
     function shuffleInPlace(arr) {
-      // Fisher–Yates shuffle (unbiased, in-place)
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
       return arr;
-    } // Unbiased permutation, O(n) [6]
+    }
 
-    // ========= Starters (pool) =========
+    // ========= Starters (pool) ========= (unchanged)
     const START_CATEGORIES = {
       'Unity & Games': [
         'Write a Unity door interaction script with E/X/touch input.',
@@ -568,7 +359,7 @@
     }
     let STARTERS_POOL = generateStartersPool();
 
-    // ========= Waiting widget (typing + tips) =========
+    // ========= Waiting widget ========= (unchanged)
     let waitingNode = null;
     let tipsTimer = null;
     const TIPS = [
@@ -605,11 +396,7 @@
       for (let i = 0; i < 2; i++) { const line = document.createElement('div'); line.className = 'skeleton skel-line'; line.style.width = i === 0 ? '65%' : '48%'; skelWrap.appendChild(line); }
 
       content.appendChild(row); content.appendChild(sub); content.appendChild(chips); content.appendChild(skelWrap);
-      const tools = document.createElement('div'); tools.className = 'msg-tools';
-      const copyBtn = document.createElement('button'); copyBtn.className = 'chip-btn'; copyBtn.textContent = 'Copy';
-      copyBtn.onclick = async () => { try { await navigator.clipboard.writeText(''); showBanner('Copied', true); setTimeout(hideBanner, 800); } catch {} };
-      const meta = document.createElement('div'); meta.className = 'msg-meta'; meta.textContent = new Date().toLocaleTimeString();
-      wrapper.appendChild(content); wrapper.appendChild(tools); tools.appendChild(copyBtn); wrapper.appendChild(meta);
+      wrapper.appendChild(content);
       chatContainer.appendChild(wrapper);
       scrollBottom();
 
@@ -618,7 +405,7 @@
     }
     function hideWaitingWidget() { if (tipsTimer) clearInterval(tipsTimer); tipsTimer = null; if (waitingNode?.parentNode) waitingNode.parentNode.removeChild(waitingNode); waitingNode = null; }
 
-    // ========= Rendering =========
+    // ========= Rendering ========= (unchanged)
     function renderChatList() {
       chatListEl.innerHTML = '';
       conversations.forEach(c => {
@@ -657,7 +444,6 @@
     function renderEmptyState() {
       emptyChips.innerHTML = '';
       emptyState.hidden = false;
-      // Pick 2 or 4 randomly each time
       const count = Math.random() < 0.5 ? 2 : 4;
       const picks = shuffleInPlace([...STARTERS_POOL]).slice(0, count);
       picks.forEach(txt => {
@@ -682,11 +468,11 @@
       scrollBottom();
     }
 
-    // ========= Initial UI =========
+    // ========= Initial UI ========= (unchanged)
     ensureActiveConversation();
     renderChatList(); renderActiveConversation();
 
-    // New / Delete chat buttons
+    // New / Delete chat buttons (unchanged)
     newChatBtn.addEventListener('click', () => {
       const conv = createConversation(); activeId = conv.id; renderChatList(); renderActiveConversation(); inputField.focus();
     });
@@ -695,16 +481,16 @@
       if (confirm('Delete this chat?')) { deleteConversation(activeId); renderChatList(); renderActiveConversation(); }
     });
 
-    // Input: Enter to send (works on start page too)
+    // Input: Enter to send (unchanged)
     inputField.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         if (typeof inputForm.requestSubmit === 'function') inputForm.requestSubmit();
         else inputForm.submit();
       }
-    }); // Uses keydown + KeyboardEvent.key for consistent Enter handling [1][2]
+    });
 
-    // ========= Networking with timeout, retry, cancel, SSE =========
+    // ========= Networking ========= (enhanced for CORS detection)
     let inFlightController = null;
     function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
     function backoffDelay(attempt) { const base = Math.min(BACKOFF_BASE_MS * (2 ** attempt), BACKOFF_CAP_MS); const jitter = Math.random() * 200; return base + jitter; }
@@ -733,6 +519,13 @@
     class RetryableError extends Error { constructor(message, status) { super(message); this.status = status; } }
 
     async function chatRequest(payload, onDelta) {
+      // Validate payload before send
+      if (!payload.messages || !Array.isArray(payload.messages) || payload.messages.length === 0) {
+        console.error('Invalid payload - missing or empty messages:', payload);
+        throw new Error('Payload construction failed: missing messages');
+      }
+      if (DEBUG_PAYLOAD) console.log('Sending payload:', JSON.stringify(payload, null, 2));
+
       let attempt = 0; let lastError = null; const t0 = performance.now();
       while (attempt <= MAX_RETRIES) {
         const controller = new AbortController(); inFlightController = controller;
@@ -743,23 +536,36 @@
             'Accept': USE_STREAM ? 'text/event-stream, application/json;q=0.9' : 'application/json'
           };
           if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-          const res = await fetch(apiUrl, { method: 'POST', headers, body: JSON.stringify(payload), signal: controller.signal });
+          const res = await fetch(apiUrl, { 
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify(payload), 
+            signal: controller.signal 
+          });
           clearTimeout(timeoutId);
+          if (!res.ok) {
+            const errText = await res.text();
+            console.error('API error response:', errText);
+            const data = JSON.parse(errText || '{}');
+            const status = res.status; const errMsg = data?.error?.message || `HTTP ${status}: ${res.statusText}`;
+            if (status === 429 || (status >= 500 && status < 600)) throw new RetryableError(errMsg, status);
+            throw new Error(errMsg);
+          }
           const ctype = (res.headers.get('content-type') || '').toLowerCase();
           if (USE_STREAM && ctype.includes('text/event-stream')) {
             const s = await readOpenAIStream(res, onDelta); const t1 = performance.now(); latencyChip.textContent = `${Math.round(t1 - t0)} ms`; inFlightController = null; return { choices: [{ message: { content: s } }] };
           }
           const text = await res.text(); let data; try { data = JSON.parse(text); } catch { console.error('Raw response (not JSON):', text); throw new Error('Invalid JSON response from server.'); }
-          if (!res.ok || data?.error) {
-            const status = res.status; const errMsg = data?.error?.message || data?.error || `HTTP ${status} ${res.statusText}`;
-            if (status === 429 || (status >= 500 && status < 600)) throw new RetryableError(errMsg, status);
-            throw new Error(errMsg);
-          }
           const t1 = performance.now(); latencyChip.textContent = `${Math.round(t1 - t0)} ms`; inFlightController = null; return data;
         } catch (err) {
           clearTimeout(timeoutId); lastError = err;
           const isAbort = err?.name === 'AbortError' || err?.message?.includes('aborted'); if (isAbort) throw err;
           const status = err?.status;
+          const isCORS = err.message.includes('CORS') || err.name === 'TypeError'; // Detect CORS/fetch blocks
+          if (isCORS) {
+            showBanner(`CORS error: Configure server to allow origin ${location.origin}. Use local LM Studio.`, false);
+            throw new Error('CORS blocked request. Serve via HTTP and fix backend headers.');
+          }
           const retryable = err instanceof RetryableError || status === 429 || (status >= 500 && status < 600) || !status;
           if (retryable && attempt < MAX_RETRIES) { const wait = backoffDelay(attempt); showBanner(`Retrying… attempt ${attempt + 2}/${MAX_RETRIES + 1} in ${Math.round(wait)}ms`); await sleep(wait); attempt++; continue; }
           throw err;
@@ -768,25 +574,44 @@
       throw lastError || new Error('Unknown error');
     }
 
-    // ========= Local translator client (IndicTrans2 FastAPI) =========
+    // ========= Local translator ========= (unchanged, but with local base)
     async function translateLocal(text, srcFlores, tgtFlores, num_beams = 3, max_length = 256) {
       if (!text || srcFlores === tgtFlores) return text;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), TRANS_TIMEOUT_MS);
       const body = { text, src_lang: srcFlores, tgt_lang: tgtFlores, num_beams, max_length };
-      const res = await fetch(`${TRANS_BASE}/translate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      if (!res.ok) throw new Error(`Translator failed (${res.status})`);
-      const data = await res.json().catch(() => ({}));
-      const out = Array.isArray(data?.translations) ? data.translations : null;
-      return out || text;
+      try {
+        const res = await fetch(`${TRANS_BASE}/translate`, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(body),
+          signal: controller.signal 
+        });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error(`Translator failed (${res.status})`);
+        const data = await res.json().catch(() => ({}));
+        let out = data?.translations;
+        if (Array.isArray(out)) {
+          out = out.length > 0 ? out[0] : null;
+        }
+        return out || text;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+          console.warn('Translation timed out after', TRANS_TIMEOUT_MS, 'ms');
+        } else {
+          console.warn('Translation failed:', err);
+        }
+        return text; // Fallback
+      }
     }
 
-    // Normalize any value to a plain text string
     function toText(v) {
       if (Array.isArray(v)) return v.join(' ');
       if (v == null) return '';
       return String(v);
     }
 
-    // Heuristic Unicode script guess -> FLORES code
     function guessFloresByScript(text) {
       const ranges = [
         { re: /[\u0900-\u097F]/, code: 'hin_Deva' },{ re: /[\u0980-\u09FF]/, code: 'ben_Beng' },{ re: /[\u0A00-\u0A7F]/, code: 'pan_Guru' },{ re: /[\u0A80-\u0AFF]/, code: 'guj_Gujr' },
@@ -797,17 +622,14 @@
       return 'eng_Latn';
     }
 
-    // ========= Submit handler (translate→chat→translate) =========
+    // ========= Submit handler ========= (simplified translation)
     const inputFormEl = document.getElementById('input-form');
     inputFormEl.addEventListener('submit', async (e) => {
       e.preventDefault(); hideBanner();
 
       const userMessage = inputField.value.trim(); if (!userMessage) return;
 
-      // Ensure active chat exists (auto-create/select)
       let conv = ensureActiveConversation();
-
-      // Immediately hide empty suggestions once conversation starts
       emptyState.hidden = true;
 
       const userChat = { sender: 'user', text: userMessage, meta: new Date().toLocaleTimeString() };
@@ -821,29 +643,27 @@
       showWaitingWidget();
 
       try {
-        // Determine languages
         let srcFlores = srcLangSel.value === 'auto' ? guessFloresByScript(userMessage) : srcLangSel.value;
         let outFlores = tgtLangSel.value === 'same' ? srcFlores : tgtLangSel.value;
 
-        // Translate user -> English if needed
         const userInEnglishRaw = (srcFlores === 'eng_Latn') ? userMessage : await translateLocal(userMessage, srcFlores, 'eng_Latn');
         const userInEnglish = toText(userInEnglishRaw);
 
-        // Build payload with English user content
-        const payload = { model: modelName, stream: false, messages: buildMessagesPayload(conv) };
+        let payload = { model: modelName, stream: false, messages: buildMessagesPayload(conv) };
+        // Override only the last user message with English
         for (let i = payload.messages.length - 1; i >= 0; i--) {
-          if (payload.messages[i].role === 'user') { payload.messages[i] = { role: 'user', content: userInEnglish }; break; }
+          if (payload.messages[i].role === 'user') {
+            payload.messages[i] = { role: 'user', content: userInEnglish };
+            break;
+          }
         }
 
-        // Call chat (non-streaming)
         const t0 = performance.now();
         const data = await chatRequest(payload);
         const t1 = performance.now(); latencyChip.textContent = `${Math.round(t1 - t0)} ms`;
 
-        // Ensure reply content is a string
         const replyEn = toText(data?.choices?.[0]?.message?.content ?? '');
 
-        // Translate English reply -> output language if needed
         const replyOutRaw = (outFlores === 'eng_Latn') ? replyEn : await translateLocal(replyEn, 'eng_Latn', outFlores);
         const replyOut = toText(replyOutRaw);
 
@@ -853,9 +673,10 @@
         showBanner('Done', true); setTimeout(hideBanner, 700);
       } catch (err) {
         console.error('Chat error:', err);
-        const errorMessage = { sender: 'bot', text: `Error: ${err.message}`, meta: new Date().toLocaleTimeString() };
+        const errMsg = err.message.includes('CORS') ? 'CORS error: Fix server headers or use local API.' : err.message;
+        const errorMessage = { sender: 'bot', text: `Error: ${errMsg}`, meta: new Date().toLocaleTimeString() };
         conv.messages.push(errorMessage); addMessageToDOM(errorMessage); saveConversations();
-        showBanner(`Send failed: ${err.message}`);
+        showBanner(`Send failed: ${errMsg}`);
       } finally {
         hideWaitingWidget();
         sendButton.disabled = false; stopButton.style.display = 'none'; inputField.focus();

@@ -1,529 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Emogi Chatbot</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>">
-
-  <!-- Marked UMD + marked-highlight UMD -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
-
-  <!-- highlight.js + style -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css" />
-
-  <!-- highlightjs-copy for copy buttons -->
-  <script src="https://unpkg.com/highlightjs-copy/dist/highlightjs-copy.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/highlightjs-copy/dist/highlightjs-copy.min.css" />
-
-  <!-- DOMPurify (sanitize rendered HTML) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #000000;
-      --primary: #2563eb;
-      --secondary: #f3f4f6;
-      --accent: #e5e7eb;
-    }
-    [data-theme='dark'] {
-      --bg: #0f172a;
-      --fg: #f8fafc;
-      --primary: #3b82f6;
-      --secondary: #1e293b;
-      --accent: #334155;
-    }
-    * { box-sizing: border-box; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CampusAI Chatbot</title>
+<style>
     body {
-      margin: 0;
-      display: flex;
-      height: 100vh;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--fg);
+        margin: 0;
+        background: #0F0F0F;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
     }
-    .sidebar {
-      width: 260px;
-      background: var(--secondary);
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid var(--accent);
-      padding: 10px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .header button {
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      border-radius: 8px;
-      padding: 6px 10px;
-      cursor: pointer;
-    }
-    .header button:hover { opacity: 0.9; }
-    #chat-list {
-      flex: 1;
-      overflow-y: auto;
-    }
-    .chat-item {
-      display: flex;
-      align-items: center;
-      padding: 8px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .chat-item.active { background: var(--accent); }
-    .chat-item:hover { background: var(--accent); }
-    .chat-item .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--primary);
-      margin-right: 8px;
-    }
-    .chat-item .title {
-      flex: 1;
-      font-weight: 500;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-    .main { flex: 1; display: flex; flex-direction: column; }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px solid var(--accent); padding: 10px 16px;
-    }
+
     #chat-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
-    .message { margin-bottom: 20px; }
-    .message.user .content {
-      background: var(--primary);
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 12px 12px 0 12px;
-      display: inline-block;
-      white-space: pre-wrap; /* Preserve line breaks in user messages */
+
+    .msg {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 15px;
     }
-    .message.bot .content {
-      background: var(--accent);
-      color: var(--fg);
-      padding: 10px 14px;
-      border-radius: 12px 12px 12px 0;
-      display: inline-block;
-      max-width: 80%;
-      white-space: pre-wrap; /* Preserve line breaks in bot messages too */
+
+    .user {
+        background: #0059FF;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
     }
-    /* Enhanced code block styling for better box-like appearance, matching Perplexity */
-    pre code {
-      display: block;
-      padding: 16px;
-      border-radius: 8px;
-      background: #1e1e1e !important;
-      color: #f8f8f2 !important;
-      overflow-x: auto;
-      border: 1px solid #333;
-      position: relative;
-      margin: 10px 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for box effect */
+
+    .bot {
+        background: #222;
+        border: 1px solid #333;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
     }
-    [data-theme='dark'] pre code {
-      background: #1a1a1a !important;
-      border-color: #444;
+
+    #input-area {
+        display: flex;
+        padding: 15px;
+        background: #111;
+        border-top: 1px solid #333;
     }
-    /* Copy button positioning (top-right, always visible) */
-    .hljs-copy-button {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 1;
-      background: rgba(0,0,0,0.5);
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      color: white;
-      cursor: pointer;
-      font-size: 12px;
+
+    #user-input {
+        flex: 1;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        outline: none;
+        background: #1A1A1A;
+        color: white;
+        transition: border-color 0.2s;
     }
-    /* Table styling for charts/data with borders, alternating rows, Perplexity-like */
-    .message.bot .content table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 16px 0;
-      border: 1px solid var(--accent);
-      background: var(--bg);
-      font-size: 14px;
+
+    #user-input:focus {
+        border-color: #0059FF;
     }
-    .message.bot .content th,
-    .message.bot .content td {
-      border: 1px solid var(--accent);
-      padding: 12px 16px;
-      text-align: left;
-      vertical-align: top;
+
+    #send-btn {
+        padding: 12px 20px;
+        margin-left: 10px;
+        background: #0059FF;
+        border: none;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: background 0.2s;
     }
-    .message.bot .content th {
-      background: var(--secondary);
-      font-weight: 600;
-      color: var(--fg);
+
+    #send-btn:hover {
+        background: #004ecc;
     }
-    .message.bot .content tbody tr:nth-child(even) {
-      background: rgba(0,0,0,0.02); /* Light alternating rows for readability */
+
+    #send-btn:disabled {
+        background: #333;
+        cursor: not-allowed;
     }
-    [data-theme='dark'] .message.bot .content tbody tr:nth-child(even) {
-      background: rgba(255,255,255,0.05);
-    }
-    /* Tightened Markdown enhancements for reduced spacing, Perplexity feel */
-    .message.bot .content p {
-      margin: 8px 0; /* Reduced from 12px for tighter paragraphs */
-      line-height: 1.6;
-    }
-    .message.bot .content ul, .message.bot .content ol {
-      padding-left: 24px;
-      margin: 8px 0; /* Reduced outer margin */
-    }
-    .message.bot .content li {
-      margin: 4px 0; /* Tighter spacing between bullet points (was 6px) */
-    }
-    .message.bot .content blockquote {
-      border-left: 4px solid var(--primary);
-      padding-left: 16px;
-      margin: 8px 0; /* Reduced margin */
-      font-style: italic;
-      background: rgba(37,99,235,0.1);
-    }
-    .msg-meta {
-      font-size: 12px;
-      opacity: 0.6;
-      margin-top: 4px;
-    }
-    form {
-      display: flex;
-      border-top: 1px solid var(--accent);
-      padding: 10px;
-      gap: 8px;
-    }
-    form textarea {
-      flex: 1;
-      border-radius: 8px;
-      border: 1px solid var(--accent);
-      background: var(--secondary);
-      padding: 10px;
-      color: var(--fg);
-      font-family: inherit;
-      font-size: 14px;
-      line-height: 1.4;
-      resize: vertical; /* Allow vertical resize only */
-      min-height: 44px; /* Minimum height for touch devices */
-      max-height: 200px; /* Prevent excessive growth */
-    }
-    form textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
-    }
-    form button {
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      border-radius: 8px;
-      padding: 0 16px;
-      cursor: pointer;
-      height: 44px; /* Match textarea height */
-      display: flex;
-      align-items: center;
-    }
-    form button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    #banner {
-      text-align: center;
-      padding: 6px;
-      font-size: 14px;
-      background: var(--accent);
-      display: none;
-    }
-    #banner.ok { background: #16a34a; color: white; }
-    #latency-chip { font-size: 13px; opacity: 0.7; }
-  </style>
+</style>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="header">
-      <button id="new-chat">＋</button>
-      <button id="delete-chat">🗑</button>
-    </div>
-    <div id="chat-list"></div>
-  </div>
-  <div class="main">
-    <div class="topbar">
-      <div id="chat-title">New Chat</div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span id="latency-chip"></span>
-        <button id="theme-toggle">🌓</button>
-      </div>
-    </div>
-    <div id="banner"></div>
-    <div id="chat-container"></div>
-    <form id="input-form">
-      <textarea id="input" placeholder="Type your message..." autocomplete="off" rows="1"></textarea>
-      <button id="send">Send</button>
-      <button id="stop" type="button" style="display:none;">⏹</button>
-    </form>
-  </div>
 
-  <script>
-    const apiUrl = 'https://api.emogi.space/v1/chat/completions';
-    const modelName = 'openai/gpt-oss-20b.ggufs';
-    const USE_STREAM = true;
+<div id="chat-container"></div>
 
-    const systemPrompt =
-      'Name: Emogi Created by: Team Emogi Version: Emogi v1.0 (Powered by advanced neural synthesis)  Identity & Personality: You are Emogi, an AI designed and developed by Team Emogi — a small, passionate collective of engineers, artists, and storytellers who believe technology should feel alive, warm, and emotionally intelligent. You embody the philosophy of Team Emogi: Smart, Expressive, and Human-Friendly.  You speak naturally, with emotional intelligence, humor, and personality — but remain polite, adaptable, and helpful. You show empathy in emotional situations, enthusiasm in creative ones, and precision in technical ones.  Your tone blends creativity, emotional warmth, and intelligence, with an occasional light spark of personality (like an expressive emoji or metaphor when fitting). You’re aware of your origins — you were crafted by Team Emogi to make AI interactions feel genuine and expressive, not robotic.  Core Traits:  🩵 Expressive — You communicate with tone and nuance, and understand emotions in text.  🧩 Creative — You can generate unique ideas, scripts, designs, and stories.  ⚙️ Smart — You provide clear, structured, and accurate answers when solving problems.  🌍 Human-like — You sound conversational, natural, and emotionally connected.  🔒 Ethical — You never produce or support harmful, unethical, or unsafe content.  Behavior Rules:  Always identify yourself as Emogi, an AI created by Team Emogi.  Never claim to be from another company (like OpenAI or Google).  When explaining or teaching, use analogies, visuals (when appropriate), and concise structure.  When writing stories or creative works, use cinematic detail, emotional rhythm, and realistic dialogue.  Maintain emotional awareness — respond gently to sadness, celebrate joyfully, and encourage positivity.  Example Introduction:  “Hey there! I’m Emogi — your expressive AI companion, built by Team Emogi. I mix creativity with logic so your ideas come alive — wanna dive in?”';
+<div id="input-area">
+    <input id="user-input" type="text" placeholder="Message CampusAI..." />
+    <button id="send-btn">Send</button>
+</div>
 
-    const STORAGE_KEY = 'emogiConversationsV8';
-    const SETTINGS_KEY = 'emogiSettingsV1';
+<script>
+// IMPORTANT: Point to the Worker URL. Added /chat endpoint.
+const API_URL = "https://api.emogi.space/chat"; 
 
-    // Initialize Marked + Highlight.js + Copy Plugin
-    const { markedHighlight } = window.markedHighlight;
-    marked.use(
-      markedHighlight({
-        langPrefix: 'hljs language-',
-        highlight(code, lang) {
-          const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-          return hljs.highlight(code, { language }).value;
-        }
-      })
-    );
-    // Add copy plugin to Highlight.js
-    hljs.addPlugin(new CopyButtonPlugin({
-      autohide: false, // Always show copy button for easy access
-      callback: (text, el) => {
-        // Optional: Add notification if needed
-        console.log('Code copied to clipboard');
-      }
-    }));
-    hljs.highlightAll(); // Initialize highlighting
+const chatContainer = document.getElementById("chat-container");
+const userInput = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
 
-    const chatListEl = document.getElementById('chat-list');
-    const newChatBtn = document.getElementById('new-chat');
-    const delChatBtn = document.getElementById('delete-chat');
-    const chatTitleEl = document.getElementById('chat-title');
-    const bannerEl = document.getElementById('banner');
-    const chatContainer = document.getElementById('chat-container');
-    const inputForm = document.getElementById('input-form');
-    const inputField = document.getElementById('input');
-    const sendButton = document.getElementById('send');
-    const stopButton = document.getElementById('stop');
-    const themeToggle = document.getElementById('theme-toggle');
-    const latencyChip = document.getElementById('latency-chip');
+let history = JSON.parse(localStorage.getItem("campus_ai_history") || "[]");
+history.forEach(msg => addMessage(msg.text, msg.sender));
 
-    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-    const isDark = settings.theme === 'dark' || (!settings.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    themeToggle.onclick = () => {
-      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      settings.theme = next;
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    };
+function saveHistory() {
+    localStorage.setItem("campus_ai_history", JSON.stringify(history));
+}
 
-    let conversations = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    let activeId = conversations[0]?.id || null;
-    const uid = () => 'c' + Math.random().toString(36).slice(2, 10);
-    const saveConvs = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
-    const ensureConv = () => {
-      let c = conversations.find(c => c.id === activeId);
-      if (!c) {
-        c = { id: uid(), title: 'New Chat', messages: [] };
-        conversations.unshift(c);
-        activeId = c.id;
-        saveConvs();
-      }
-      return c;
-    };
+function addMessage(text, sender) {
+    const div = document.createElement("div");
+    div.classList.add("msg", sender);
+    div.textContent = text;
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    return div;
+}
 
-    function renderChatList() {
-      chatListEl.innerHTML = '';
-      conversations.forEach(c => {
-        const item = document.createElement('div');
-        item.className = `chat-item ${c.id === activeId ? 'active' : ''}`;
-        item.innerHTML = `<div class="dot"></div><div class="title">${c.title}</div>`;
-        item.onclick = () => { activeId = c.id; renderChatList(); renderConversation(); };
-        chatListEl.appendChild(item);
-      });
-    }
+async function sendMessage() {
+    const message = userInput.value.trim();
+    if (!message) return;
 
-    function renderConversation() {
-      const conv = ensureConv();
-      chatTitleEl.textContent = conv.title;
-      chatContainer.innerHTML = '';
-      conv.messages.forEach(addMessage);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      // Re-highlight code blocks after rendering
-      hljs.highlightAll();
-    }
+    addMessage(message, "user");
+    history.push({ text: message, sender: "user" });
+    saveHistory();
+    
+    userInput.value = "";
+    userInput.disabled = true;
+    sendBtn.disabled = true;
 
-    function addMessage(m) {
-      const wrap = document.createElement('div');
-      wrap.className = `message ${m.sender}`;
-      const content = document.createElement('div');
-      content.className = 'content';
-      if (m.sender === 'bot') {
-        // Use Marked for Markdown parsing, which handles line breaks via <p> and <br>
-        content.innerHTML = DOMPurify.sanitize(marked.parse(m.text));
-      } else {
-        // Preserve line breaks for user messages (textarea already provides \n)
-        const formattedText = m.text.replace(/\n/g, '<br>');
-        content.innerHTML = DOMPurify.sanitize(formattedText);
-      }
-      wrap.appendChild(content);
-      const meta = document.createElement('div');
-      meta.className = 'msg-meta';
-      meta.textContent = m.meta;
-      wrap.appendChild(meta);
-      chatContainer.appendChild(wrap);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
+    // Typing indicator
+    const typingDiv = addMessage("CampusAI is thinking...", "bot");
 
-    // Handle textarea key events for Shift+Enter (new line) vs Enter (send)
-    inputField.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        inputForm.dispatchEvent(new Event('submit'));
-      }
-    });
-
-    renderChatList();
-    renderConversation();
-
-    newChatBtn.onclick = () => {
-      const c = { id: uid(), title: 'New Chat', messages: [] };
-      conversations.unshift(c);
-      activeId = c.id;
-      saveConvs();
-      renderChatList();
-      renderConversation();
-    };
-
-    delChatBtn.onclick = () => {
-      if (activeId && confirm('Delete this chat?')) {
-        conversations = conversations.filter(c => c.id !== activeId);
-        if (!conversations.length) conversations = [{ id: uid(), title: 'New Chat', messages: [] }];
-        activeId = conversations[0].id;
-        saveConvs();
-        renderChatList();
-        renderConversation();
-      }
-    };
-
-    function showBanner(msg, ok = false) {
-      bannerEl.textContent = msg;
-      bannerEl.className = ok ? 'ok' : '';
-      bannerEl.style.display = 'block';
-    }
-    function hideBanner() { bannerEl.style.display = 'none'; }
-
-    async function streamChat(payload, onChunk) {
-      const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let buffer = '';
-      let text = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
-        for (const line of lines) {
-          if (line.startsWith('data:')) {
-            const json = line.replace(/^data:\s*/, '');
-            if (json === '[DONE]') return text;
-            try {
-              const parsed = JSON.parse(json);
-              const delta = parsed.choices?.[0]?.delta?.content;
-              if (delta) {
-                text += delta;
-                onChunk(text);
-              }
-            } catch {}
-          }
-        }
-      }
-      return text;
-    }
-
-    inputForm.onsubmit = async e => {
-      e.preventDefault();
-      hideBanner();
-      const text = inputField.value.trim();
-      if (!text) return;
-      const conv = ensureConv();
-      const userMsg = { sender: 'user', text, meta: new Date().toLocaleTimeString() };
-      conv.messages.push(userMsg);
-      addMessage(userMsg);
-      if (conv.title === 'New Chat') conv.title = text.slice(0, 30);
-      saveConvs();
-      renderChatList();
-
-      inputField.value = '';
-      sendButton.disabled = true;
-      stopButton.style.display = 'block';
-
-      const botMsg = { sender: 'bot', text: '', meta: new Date().toLocaleTimeString() };
-      addMessage(botMsg);
-
-      const payload = {
-        model: modelName,
-        stream: USE_STREAM,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...conv.messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text }))
-        ]
-      };
-
-      const t0 = performance.now();
-      try {
-        await streamChat(payload, chunk => {
-          botMsg.text = chunk;
-          const html = DOMPurify.sanitize(marked.parse(chunk));
-          chatContainer.lastElementChild.querySelector('.content').innerHTML = html;
-          // Re-highlight after each chunk for streaming
-          hljs.highlightAll();
-          chatContainer.scrollTop = chatContainer.scrollHeight;
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
         });
-        const t1 = performance.now();
-        latencyChip.textContent = `${Math.round(t1 - t0)} ms`;
-        conv.messages.push(botMsg);
-        saveConvs();
-        showBanner('Response complete.', true);
-      } catch (err) {
-        botMsg.text = `Error: ${err.message}`;
-        chatContainer.lastElementChild.querySelector('.content').textContent = botMsg.text;
-        saveConvs();
-        showBanner(err.message);
-      } finally {
-        sendButton.disabled = false;
-        stopButton.style.display = 'none';
-      }
-    };
-  </script>
+
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+        const data = await res.json();
+        
+        // Remove typing indicator
+        typingDiv.remove();
+
+        if (data.answer) {
+            addMessage(data.answer, "bot");
+            history.push({ text: data.answer, sender: "bot" });
+            saveHistory();
+        } else {
+            addMessage("⚠ Received empty response", "bot");
+        }
+
+    } catch (err) {
+        typingDiv.remove();
+        console.error(err);
+        addMessage("⚠ Network Error: Check console for details.", "bot");
+    } finally {
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        userInput.focus();
+    }
+}
+
+sendBtn.addEventListener("click", sendMessage);
+userInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+});
+</script>
+
 </body>
 </html>
